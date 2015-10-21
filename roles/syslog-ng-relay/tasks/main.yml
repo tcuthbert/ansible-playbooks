@@ -1,0 +1,20 @@
+---
+
+- name: Create client logs directory
+  file: path={{ remote_log_path }} state=directory owner=root group=root
+
+#- name: Checking if listening on syslog socket
+  #shell: "ss -t -u '( sport = :{{ syslog_tcp_port }} or sport = :{{ syslog_udp_port }} )'"
+  #register: socket_inuse
+
+- name: Checking if server configuration also present
+  stat: path=/etc/syslog-ng/conf.d/server.conf
+  register: is_server
+
+- name: Copy server log configuration
+  template: src=relay.conf.j2 dest=/etc/syslog-ng/conf.d/relay.conf owner=root group=root
+  notify:
+    - restart syslog-ng
+
+- name: Copy logrotate configuration
+  template: src=syslog_server.rotate.j2 dest=/etc/logrotate.d/syslog_server

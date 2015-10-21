@@ -1,0 +1,44 @@
+#source s_tcp { tcp (ip ("127.0.0.1") port (514) max-connections (1) ); };
+#source s_udp { udp (ip ("0.0.0.0") port (514)); };
+source s_syslog_listener { 
+   tcp(ip ("127.0.0.1") port({{ syslog_tcp_port }}) max-connections(1) flags(syslog-protocol) );
+   udp(ip ("0.0.0.0") port({{ syslog_udp_port }}) so_rcvbuf(2097152) flags(syslog-protocol) );
+};
+
+# Destinations
+destination d_everything {
+  file("{{ remote_log_path }}/$HOST-$YEAR-$MONTH-$DAY.log"
+    template("$FULLHOST_FROM|$FULLDATE|$MSGHDR$MSG\n")
+    template_escape(no)
+  );
+};
+
+log {
+  source(s_syslog_listener);
+  destination(d_everything);
+};
+
+log {
+  source(s_syslog_listener);
+  destination(d_console_all);
+};
+
+#log {
+#	source(s_tcp);
+#	destination(d_everything);
+#};
+#
+#log {
+#	source(s_tcp);
+#	destination(d_console_all);
+#};
+
+#log {
+#  source(s_udp);
+#  destination(d_everything);
+#};
+#
+#log {
+#  source(s_udp);
+#  destination(d_console_all);
+#};

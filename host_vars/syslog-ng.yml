@@ -1,0 +1,5 @@
+---
+
+nfs_exports: [ "{{ nfs_server_path }} *({{ nfs_server_opts }})" ]
+syslog_forwarders: 
+  - graylog: { hostname: "graylog" }

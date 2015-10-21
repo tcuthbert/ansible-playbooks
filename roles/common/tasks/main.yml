@@ -1,0 +1,15 @@
+---
+
+- name: Set SELinux to permissive
+  selinux: policy=targeted state=permissive
+  when: ansible_distribution == 'CentOS'
+
+- name: Install the epel repository
+  yum: name=epel-release state=present
+
+- name: Install common apps
+  yum: name={{ item }} state=present
+  with_items: "{{common_apps}}"
+
+- include: testing.yml
+  when: testing

@@ -1,0 +1,25 @@
+{% if not is_server.stat.exists %}
+source s_syslog_listener { 
+   tcp(port({{ syslog_tcp_port }}) flags(syslog-protocol) );
+   udp(port({{ syslog_udp_port }}) so_rcvbuf(2097152) flags(syslog-protocol) );
+
+};
+{% endif %}
+{% if syslog_forwarders %}
+{% for forwarders in syslog_forwarders %}
+{% for forwarder, forwarder_info in forwarders.items() %}
+destination d_{{ forwarder }} {
+  udp("{{ forwarder_info.hostname }}" 
+    port("{{ syslog_udp_port }}")
+		template("$FULLHOST_FROM|$FULLDATE|$MSGHDR$MSG\n")
+    template_escape(no)
+  );
+};
+
+log { 
+    source(s_syslog_listener); 
+    destination(d_{{ forwarder }});
+};
+{% endfor %}
+{% endfor %}
+{% endif %}

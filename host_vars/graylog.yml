@@ -1,0 +1,6 @@
+---
+
+nfsmount: "/export/var/logs"
+nfspath: "{{ remote_log_path }}"
+nfsserver: "{{ syslog_server }}"
+nfsscaddr: "{{ hostvars['graylog']['ansible_default_ipv4']['address'] }}"
